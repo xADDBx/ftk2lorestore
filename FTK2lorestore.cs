@@ -38,8 +38,10 @@ namespace ftk2lorestore {
             foreach (var item in Env.Configs.LoreStore.Keys.ToList()) {
                 if (!LoreStoreHelper.IsItemPurchased(item, __instance._env.User.Stats) && Env.Configs.LoreStore[item].DefaultState >= -2) {
                     StatsHelper.SetStat(item, 0, __instance._env.User.Stats, false, true);
-                    StatsHelper.AddStat("TOTAL_LORE", LoreStoreHelper.GetItemCost(item, __instance._env.User.Stats), __instance._env.User.Stats, false, true);
-                    LoreStoreHelper.PurchaseItem(item, __instance._env.User.Stats);
+                    while (StatsHelper.GetStat(item, __instance._env.User.Stats) < Env.Configs.LoreStore[item].MaxState) {
+                        StatsHelper.AddStat("TOTAL_LORE", LoreStoreHelper.GetItemCost(item, __instance._env.User.Stats), __instance._env.User.Stats, false, true);
+                        LoreStoreHelper.PurchaseItem(item, __instance._env.User.Stats);
+                    }
                 }
             }
             SaveGameHelper.SaveUser(__instance._env.User);
