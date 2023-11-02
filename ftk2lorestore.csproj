@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="GamePath.props" Condition="Exists('GamePath.props')" />
+	
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<AssemblyName>ftk2lorestore</AssemblyName>
+		<Description>FTK 2 Lore Store Cheats</Description>
+		<Version>1.0.0</Version>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>latest</LangVersion>
+		<RestoreAdditionalProjectSources>
+			https://api.nuget.org/v3/index.json;
+			https://nuget.bepinex.dev/v3/index.json;
+			https://nuget.samboy.dev/v3/index.json
+		</RestoreAdditionalProjectSources>
+		<RootNamespace>ftk2lorestore</RootNamespace>
+	</PropertyGroup>
+	<ItemGroup>
+		<Reference Include="Assembly-CSharp">
+			<HintPath>$(SolutionDir)lib\Assembly-CSharp_public.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<PubliciseInputAssemblies Include="$(FTK2InstallDir)\For The King II_Data\Managed\Assembly-CSharp.dll" />
+	</ItemGroup>
+	<PropertyGroup>
+		<PostBuildEvent Condition=" '$(FTK2InstallDir)' != ''">
+			echo "Copying build results to $(FTK2InstallDir)\BepInEx\plugins\$(AssemblyName)\"
+			xcopy /Y /E "$(TargetDir)*.*" "$(FTK2InstallDir)\BepInEx\plugins\$(AssemblyName)\"
+		</PostBuildEvent>
+	</PropertyGroup>
+	<ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+		<PackageReference Include="BepInEx.Core" Version="5.*" />
+		<PackageReference Include="UnityEngine.Modules" Version="2021.3.29" IncludeAssets="compile" />
+		<PackageReference Include="Aze.Publicise.MSBuild.Task" Version="1.1.0" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" PrivateAssets="all" />
+	</ItemGroup>
+	<Target Name="Publicise" AfterTargets="BeforeBuild;Clean" Inputs="@(PubliciseInputAssemblies)" Outputs="$(SolutionDir)lib\%(PubliciseInputAssemblies.FileName)_public.dll;$(SolutionDir)lib\%(PubliciseInputAssemblies.FileName)_public.hash">
+		<MakeDir Directories="$(SolutionDir)lib/" />
+		<Publicise InputAssemblies="@(PubliciseInputAssemblies)" OutputPath="$(SolutionDir)lib/" PubliciseCompilerGenerated="true" />
+	</Target>
+
+	<Target Name="GenerateCustomPropsFile" BeforeTargets="BeforeBuild" Condition="$(FTK2InstallDir) == ''">
+		<Exec Command="findstr /C:&quot;Mono path[0]&quot; &quot;$(USERPROFILE)\AppData\LocalLow\IronOak Games\For The King II\Player.log&quot;" IgnoreExitCode="true" ConsoleToMSBuild="true">
+			<Output TaskParameter="ExitCode" PropertyName="ExitCode" />
+			<Output TaskParameter="ConsoleOutput" PropertyName="MonoPathLine" />
+		</Exec>
+
+		<PropertyGroup>
+			<MonoPathRegex>^Mono path\[0\] = '(.*?)/For The King II_Data/Managed'$</MonoPathRegex>
+		</PropertyGroup>
+
+		<PropertyGroup>
+			<FTK2InstallDir>$([System.Text.RegularExpressions.Regex]::Match($(MonoPathLine), $(MonoPathRegex)).Groups[1].Value)</FTK2InstallDir>
+		</PropertyGroup>
+
+		<WriteLinesToFile File="GamePath.props" Lines="&lt;Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003'&gt; 
+	&lt;PropertyGroup&gt; 
+		&lt;FTK2InstallDir&gt;$(FTK2InstallDir)&lt;/FTK2InstallDir&gt;
+	&lt;/PropertyGroup&gt;
+&lt;/Project&gt;" Overwrite="true" Encoding="utf-8" />
+	</Target>
+</Project>
