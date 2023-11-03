@@ -1,6 +1,10 @@
 BepInEx Plugin to unlock and purchase all Lore Items in For The King II.
 
-**Some items that can be bought multiple items are only automatically bought once. I added a Hotkey (LeftShift + F2) which adds 50 Lore currency to allow manually purchasing the remaining tiers if needed.** (When used in the Lore Store, the currency needs to be refreshed by leaving and reentering the store.)
+The mod adds the following hotkeys:
+
+- LeftShift + F2: Add 50 Lore
+- LeftShift + F3: Make all items purchaseable
+- LeftShift + F4: Instantly Unlock Everything
 
 ### Installation
 
