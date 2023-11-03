@@ -16,7 +16,7 @@ namespace ftk2lorestore {
         internal static BepInEx.Configuration.KeyboardShortcut addLore = new(UnityEngine.KeyCode.F2, UnityEngine.KeyCode.LeftShift);
         internal static BepInEx.Configuration.KeyboardShortcut unlockAll = new(UnityEngine.KeyCode.F3, UnityEngine.KeyCode.LeftShift);
         internal static BepInEx.Configuration.KeyboardShortcut buyAll = new(UnityEngine.KeyCode.F4, UnityEngine.KeyCode.LeftShift);
-        internal static UserData user;
+        internal static UserData user => RouterMono.GetEnv().User;
         private void Awake() {
             // Plugin startup logic
             log = Logger;
@@ -55,14 +55,6 @@ namespace ftk2lorestore {
                     LoreStoreHelper.PurchaseItem(item, user.Stats);
                 }
             }
-        }
-    }
-    [HarmonyPatch(typeof(LoreStoreDirector))]
-    public static class LoreStoreDirector_Patch {
-        [HarmonyPatch(nameof(LoreStoreDirector.Initialize))]
-        [HarmonyPrefix]
-        public static void Initialize(LoreStoreDirector __instance) {
-            FTK2lorestore.user = __instance._env.User;
         }
     }
 }
