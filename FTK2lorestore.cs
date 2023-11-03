@@ -97,7 +97,7 @@ namespace ftk2lorestore {
         }
         private static void Sell() {
             foreach (var item in Env.Configs.LoreStore.Keys.ToList()) {
-                while (StatsHelper.GetStat(item, user.Stats) > 0) {
+                while (StatsHelper.GetStat(item, user.Stats) > 0 && StatsHelper.GetStat(item, user.Stats) > Env.Configs.LoreStore[item].DefaultState) {
                     StatsHelper.AddStat(item, -1, user.Stats, pPerRun: false, pCheckLoreUnlocks: true);
                     StatsHelper.AddStat(eUserStats.LORE_STORE_PURCHASES, -1, user.Stats, pPerRun: false, pCheckLoreUnlocks: true);
                     StatsHelper.AddStat(eUserStats.LORE_POINTS_SPENT, -Env.Configs.LoreStore[item].Cost, user.Stats, pPerRun: false, pCheckLoreUnlocks: true);
