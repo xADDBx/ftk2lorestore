@@ -13,6 +13,8 @@ Download the BepInEx Package from the Releases and unzip into your game director
 For The King II directory:
 Steamp/steamapps/common/For The King II/
 
+![grafik](https://github.com/xADDBx/ftk2lorestore/assets/62178123/9c37f320-0cd8-41a7-9568-da2f4574fe3b)
+
 ├── BepInEx/ (Put here by you)
 
 │ └── (a few subdirectories)
