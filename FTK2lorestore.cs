@@ -76,7 +76,8 @@ namespace ftk2lorestore {
                     if (StatsHelper.GetStat(item, user.Stats) == -2) {
                         StatsHelper.SetStat(item, 0, user.Stats, false, true);
                     }
-                } else if (includeNonHidden) {
+                }
+                if (includeNonHidden) {
                     if (StatsHelper.GetStat(item, user.Stats) < 0 && Env.Configs.LoreStore[item].DefaultState == -1) {
                         StatsHelper.SetStat(item, 0, user.Stats, false, true);
                     }
