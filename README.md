@@ -1,10 +1,10 @@
-BepInEx Plugin to unlock and purchase all Lore Items in For The King II.
+BepInEx Plugin for doing stuff with the Lore Store in For The King II. It's possible to cheat add lore books, remove them, make locked items purchaseable and make hidden items purchaseable.
 
 The mod adds the following hotkeys (After using a Hotkey, if you already entered the Lore Store you need to leave and reenter):
 
 - LeftShift + F2: Add 50 Lore
 - LeftShift + F3: Make all items purchaseable
-- LeftShift + F4: Make only hidden items purchaseable (stuff like preorder bonus and alpha unlockable I think)
+- LeftShift + F4: Make only hidden items purchaseable
 - LeftShift + F5: Make only visible items purchaseable
 - LeftShift + F6: Buy everything
 - LeftShift + F7: Buy everything visible
