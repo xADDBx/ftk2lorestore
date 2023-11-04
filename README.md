@@ -47,4 +47,4 @@ Steamp/steamapps/common/For The King II/
 - Hotkeys for Remove Lore, Make hidden items purchaseable and Sell everything.
 
 ## 1.0.0 (developed with For The King II 1.0.9)
-- Hotkeys for Add Lore, Make all items purchaseable and instantly unlock everything.
+- Initial commit for FTK II Lore Store. Hotkeys for Add Lore, Make all items purchaseable and instantly unlock everything.
