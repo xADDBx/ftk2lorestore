@@ -10,7 +10,7 @@ namespace ftk2lorestore {
     public class FTK2lorestore : BaseUnityPlugin {
         public const string PLUGIN_GUID = "ftk2lorestore";
         public const string PLUGIN_NAME = "FTK 2 Lore Store Cheats";
-        public const string PLUGIN_VERSION = "1.0.2";
+        public const string PLUGIN_VERSION = "1.1.0";
         public static readonly Harmony HarmonyInstance = new Harmony(PLUGIN_GUID);
         internal static ManualLogSource log;
         internal static BepInEx.Configuration.KeyboardShortcut addLore = new(UnityEngine.KeyCode.F2, UnityEngine.KeyCode.LeftShift);
