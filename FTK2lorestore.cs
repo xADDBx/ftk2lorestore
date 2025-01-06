@@ -2,6 +2,7 @@
 using BepInEx.Logging;
 using ftk2lorestore;
 using HarmonyLib;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -10,7 +11,7 @@ namespace ftk2lorestore {
     public class FTK2lorestore : BaseUnityPlugin {
         public const string PLUGIN_GUID = "ftk2lorestore";
         public const string PLUGIN_NAME = "FTK 2 Lore Store Cheats";
-        public const string PLUGIN_VERSION = "1.1.0";
+        public const string PLUGIN_VERSION = "1.2.0";
         public static readonly Harmony HarmonyInstance = new Harmony(PLUGIN_GUID);
         internal static ManualLogSource log;
         internal static BepInEx.Configuration.KeyboardShortcut addLore = new(UnityEngine.KeyCode.F2, UnityEngine.KeyCode.LeftShift);
@@ -32,54 +33,68 @@ namespace ftk2lorestore {
         private void Update() {
             if (user == null) return;
             if (addLore.IsDown()) {
-                StatsHelper.AddStat("TOTAL_LORE", 50, user.Stats, false, true);
-                SaveGameHelper.SaveUser(user);
+                StatsHelper.AddStat("TOTAL_LORE", 50);
+                SaveGameHelper.SaveUserAsync(user);
             }
             if (removeLore.IsDown()) {
-                var current = StatsHelper.GetStat("TOTAL_LORE", user.Stats);
+                var current = getStat("TOTAL_LORE", user.LocalStats);
                 var dec = (current >= 50) ? 50 : current;
-                StatsHelper.AddStat("TOTAL_LORE", -dec, user.Stats, false, true);
-                SaveGameHelper.SaveUser(user);
+                StatsHelper.AddStat("TOTAL_LORE", -dec);
+                SaveGameHelper.SaveUserAsync(user);
             }
             if (unlockAll.IsDown()) {
                 Unlock(true, true);
-                SaveGameHelper.SaveUser(user);
+                SaveGameHelper.SaveUserAsync(user);
             }
             if (buyAll.IsDown()) {
                 Buy(true);
-                SaveGameHelper.SaveUser(user);
+                SaveGameHelper.SaveUserAsync(user);
             }
             if (buyUnlocked.IsDown()) {
                 Buy(false);
-                SaveGameHelper.SaveUser(user);
+                SaveGameHelper.SaveUserAsync(user);
             }
             if (sellAll.IsDown()) {
                 Sell();
-                SaveGameHelper.SaveUser(user);
+                SaveGameHelper.SaveUserAsync(user);
             }
             if (unlockHidden.IsDown()) {
                 Unlock(false, true);
-                SaveGameHelper.SaveUser(user);
+                SaveGameHelper.SaveUserAsync(user);
             }
             if (unlockNonHidden.IsDown()) {
                 Unlock(true, false);
-                SaveGameHelper.SaveUser(user);
+                SaveGameHelper.SaveUserAsync(user);
             }
             if (resetAll.IsDown()) {
                 Reset();
-                SaveGameHelper.SaveUser(user);
+                SaveGameHelper.SaveUserAsync(user);
             }
+        }
+        private static int getStat(string pStat, Dictionary<string, int> pStats) {
+            if (pStats.TryGetValue(pStat, out var value)) {
+                return value;
+            }
+
+            return 0;
+        }
+        private static void setStat(string pStat, int pValue, Dictionary<string, int> pStats) {
+            if (!pStats.ContainsKey(pStat)) {
+                pStats.Add(pStat, 0);
+            }
+
+            pStats[pStat] = pValue;
         }
         private static void Unlock(bool includeNonHidden, bool includeHidden) {
             foreach (var item in Env.Configs.LoreStore.Keys.ToList()) {
                 if (includeHidden) {
-                    if (StatsHelper.GetStat(item, user.Stats) == -2) {
-                        StatsHelper.SetStat(item, 0, user.Stats, false, true);
+                    if (getStat(item, user.LocalStats) == -2) {
+                        setStat(item, 0, user.LocalStats);
                     }
                 }
                 if (includeNonHidden) {
-                    if (StatsHelper.GetStat(item, user.Stats) < 0 && Env.Configs.LoreStore[item].DefaultState == -1) {
-                        StatsHelper.SetStat(item, 0, user.Stats, false, true);
+                    if (getStat(item, user.LocalStats) < 0 && Env.Configs.LoreStore[item].DefaultState == -1) {
+                        setStat(item, 0, user.LocalStats);
                     }
                 }
             }
@@ -87,27 +102,27 @@ namespace ftk2lorestore {
         private static void Buy(bool forceUnlock) {
             if (forceUnlock) Unlock(true, true);
             foreach (var item in Env.Configs.LoreStore.Keys.ToList()) {
-                if (StatsHelper.GetStat(item, user.Stats) >= 0) {
-                    while (StatsHelper.GetStat(item, user.Stats) < Env.Configs.LoreStore[item].MaxState) {
-                        StatsHelper.AddStat("TOTAL_LORE", LoreStoreHelper.GetItemCost(item, user.Stats), user.Stats, false, true);
-                        LoreStoreHelper.PurchaseItem(item, user.Stats);
+                if (getStat(item, user.LocalStats) >= 0) {
+                    while (getStat(item, user.LocalStats) < Env.Configs.LoreStore[item].MaxState) {
+                        StatsHelper.AddStat("TOTAL_LORE", LoreStoreHelper.GetItemCost(item));
+                        LoreStoreHelper.PurchaseItem(item);
                     }
                 }
             }
         }
         private static void Sell() {
             foreach (var item in Env.Configs.LoreStore.Keys.ToList()) {
-                while (StatsHelper.GetStat(item, user.Stats) > 0 && StatsHelper.GetStat(item, user.Stats) > Env.Configs.LoreStore[item].DefaultState) {
-                    StatsHelper.AddStat(item, -1, user.Stats, pPerRun: false, pCheckLoreUnlocks: true);
-                    StatsHelper.AddStat(eUserStats.LORE_STORE_PURCHASES, -1, user.Stats, pPerRun: false, pCheckLoreUnlocks: true);
-                    StatsHelper.AddStat(eUserStats.LORE_POINTS_SPENT, -Env.Configs.LoreStore[item].Cost, user.Stats, pPerRun: false, pCheckLoreUnlocks: true);
-                    StatsHelper.AddStat("TOTAL_LORE", Env.Configs.LoreStore[item].Cost, user.Stats, pPerRun: false, pCheckLoreUnlocks: true);
+                while (getStat(item, user.LocalStats) > 0 && getStat(item, user.LocalStats) > Env.Configs.LoreStore[item].DefaultState) {
+                    StatsHelper.AddStat(item, -1);
+                    StatsHelper.AddStat(eUserStats.LORE_STORE_PURCHASES, -1);
+                    StatsHelper.AddStat(eUserStats.LORE_POINTS_SPENT, -Env.Configs.LoreStore[item].Cost);
+                    StatsHelper.AddStat("TOTAL_LORE", Env.Configs.LoreStore[item].Cost);
                 }
             }
         }
         private static void Reset() {
             foreach (var item in Env.Configs.LoreStore.Keys.ToList()) {
-                StatsHelper.SetStat(item, Env.Configs.LoreStore[item].DefaultState, user.Stats, false, true);
+                setStat(item, Env.Configs.LoreStore[item].DefaultState, user.LocalStats);
             }
         }
     }

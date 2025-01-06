@@ -5,7 +5,7 @@
 		<TargetFramework>net472</TargetFramework>
 		<AssemblyName>ftk2lorestore</AssemblyName>
 		<Description>FTK 2 Lore Store Cheats</Description>
-		<Version>1.1.0</Version>
+		<Version>1.2.0</Version>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>latest</LangVersion>
 		<RestoreAdditionalProjectSources>
