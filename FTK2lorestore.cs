@@ -1,6 +1,5 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
-using ftk2lorestore;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ namespace ftk2lorestore {
     public class FTK2lorestore : BaseUnityPlugin {
         public const string PLUGIN_GUID = "ftk2lorestore";
         public const string PLUGIN_NAME = "FTK 2 Lore Store Cheats";
-        public const string PLUGIN_VERSION = "1.2.0";
+        public const string PLUGIN_VERSION = "1.3.0";
         public static readonly Harmony HarmonyInstance = new Harmony(PLUGIN_GUID);
         internal static ManualLogSource log;
         internal static BepInEx.Configuration.KeyboardShortcut addLore = new(UnityEngine.KeyCode.F2, UnityEngine.KeyCode.LeftShift);
@@ -24,13 +23,13 @@ namespace ftk2lorestore {
         internal static BepInEx.Configuration.KeyboardShortcut sellAll = new(UnityEngine.KeyCode.F9, UnityEngine.KeyCode.LeftShift);
         internal static BepInEx.Configuration.KeyboardShortcut resetAll = new(UnityEngine.KeyCode.F10, UnityEngine.KeyCode.LeftShift);
         internal static UserData user => RouterMono.GetEnv().User;
-        private void Awake() {
+        internal void Awake() {
             // Plugin startup logic
             log = Logger;
             HarmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
             Logger.LogInfo($"Plugin {PLUGIN_GUID} is loaded!");
         }
-        private void Update() {
+        internal void Update() {
             if (user == null) return;
             if (addLore.IsDown()) {
                 StatsHelper.AddStat("TOTAL_LORE", 50);
@@ -88,7 +87,7 @@ namespace ftk2lorestore {
         private static void Unlock(bool includeNonHidden, bool includeHidden) {
             foreach (var item in Env.Configs.LoreStore.Keys.ToList()) {
                 if (includeHidden) {
-                    if (getStat(item, user.LocalStats) == -2) {
+                    if (getStat(item, user.LocalStats) == -2 && Env.Configs.LoreStore[item].MaxState >= 0) {
                         setStat(item, 0, user.LocalStats);
                     }
                 }
@@ -103,9 +102,9 @@ namespace ftk2lorestore {
             if (forceUnlock) Unlock(true, true);
             foreach (var item in Env.Configs.LoreStore.Keys.ToList()) {
                 if (getStat(item, user.LocalStats) >= 0) {
-                    while (getStat(item, user.LocalStats) < Env.Configs.LoreStore[item].MaxState) {
+                    while (getStat(item, user.LocalStats) < Env.Configs.LoreStore[item].MaxState || (getStat(item, user.LocalStats) == 0 && Env.Configs.LoreStore[item].MaxState == -2)) {
                         StatsHelper.AddStat("TOTAL_LORE", LoreStoreHelper.GetItemCost(item));
-                        LoreStoreHelper.PurchaseItem(item);
+                        LoreStoreHelper.PurchaseItem(item, LoreStoreHelper.GetItemCost(item));
                     }
                 }
             }
